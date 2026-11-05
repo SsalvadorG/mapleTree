@@ -1,6 +1,15 @@
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Para GLB
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+// NOTA
+// En el desarrollo web moderno con Three.js, el formato GLB
+// (la versión binaria de glTF) ha sustituido casi por
+// completo a la vieja combinación de OBJ + MTL.
+
+// Esto implica que puedo suponer que si trabajo con three
+// uasré GLBs, cosa que parece más simple que cargar 
+// todos los demas fihceros de una
 
 ////////////////////////////////////////////////////////////
 
@@ -20,6 +29,8 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // Suaviza el movimiento para que no sea brusco
 controls.dampingFactor = 0.05;
 
+////////////////////////////////////////////////////////////
+
 // Iluminación
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); 
 scene.add(ambientLight);
@@ -27,6 +38,10 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); 
 directionalLight.position.set(5, 10, 7);
 scene.add(directionalLight);
+
+////////////////////////////////////////////////////////////
+
+// Inits basicos de camara
 
 // Alejar la cámara (Tu configuración actual)
 camera.position.set(0, -10, 90); 
@@ -36,36 +51,33 @@ controls.update();
 
 ////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////
-
 // 3. Alejar la cámara (Por defecto nace en el centro 0,0,0)
 camera.position.set(0, -10, 90); 
 ////////////////////////////////////////////////////////////
 
-// 1. Instanciar únicamente el cargador de Objetos (.obj)
-const objLoader = new OBJLoader();
 
-// 2. Cargar directamente el archivo .obj sin intermediarios
-objLoader.load(
-  '../public/maple-tree/QuickMapleOptimized.obj', 
-  (object) => {
+// 2. CAMBIO: Instanciamos el cargador de GLTF/GLB
+const gltfLoader = new GLTFLoader();
+
+// 3. CAMBIO: Cargamos el archivo .glb
+gltfLoader.load(
+  '../public/maple_tree.glb', // Pon aquí la ruta de tu .glb
+  (gltf) => {
+    // IMPORTANTE: El modelo real en un GLTF viene dentro de la propiedad '.scene'
+    const model = gltf.scene;
 
     // --- CENTRAR EL OBJETO AUTOMÁTICAMENTE ---
-    const box = new THREE.Box3().setFromObject(object);
+    const box = new THREE.Box3().setFromObject(model);
     const center = new THREE.Vector3();
     box.getCenter(center); 
-    object.position.sub(center);
+    model.position.sub(center);
 
-    // Forzar a la cámara a mirar al centro del árbol
-    //camera.lookAt(0, 2, 0);
-
-    // Agregar el modelo limpio a la escena
-    scene.add(object);
-    console.log("¡Modelo OBJ cargado con éxito!");
+    // Agregar el modelo a la escena
+    scene.add(model);
+    console.log("¡Modelo GLB cargado con éxito con todas sus texturas!");
   },
-  (xhr) => console.log('Cargando OBJ: ' + (xhr.loaded / xhr.total * 100) + '%'),
-  (error) => console.error('Error crítico al cargar el archivo OBJ', error)
+  (xhr) => console.log('Cargando GLB: ' + (xhr.loaded / xhr.total * 100) + '%'),
+  (error) => console.error('Error crítico al cargar el archivo GLB', error)
 );
 
 ////////////////////////////////////////////////////////////
