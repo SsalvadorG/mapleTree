@@ -59,9 +59,16 @@ camera.position.set(0, -10, 90);
 // 2. CAMBIO: Instanciamos el cargador de GLTF/GLB
 const gltfLoader = new GLTFLoader();
 
+const glbRoute = './maple_tree.glb';
+// Importante, la ruta debe empezar por ./
+// porque supone que './' es el directorio public.
+// Esto depende de el fichero vite.config.js
+// Pero como regla general, todas las rutas a
+// recursos se escriben con ./, basandose en public
+
 // 3. CAMBIO: Cargamos el archivo .glb
 gltfLoader.load(
-  '../public/maple_tree.glb', // Pon aquí la ruta de tu .glb
+  glbRoute, // Pon aquí la ruta de tu .glb
   (gltf) => {
     // IMPORTANTE: El modelo real en un GLTF viene dentro de la propiedad '.scene'
     const model = gltf.scene;
